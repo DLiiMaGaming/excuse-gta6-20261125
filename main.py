@@ -24,7 +24,25 @@ ENTRY = (
 )
 
 
+def validate_entry(entry: str) -> None:
+    """Guard the one-line entry before it is written.
+
+    The bounty scores a single short line; a stray newline, an overlong
+    line, or a multi-sentence ramble would break the format and sink
+    the entry, so the script refuses to write anything that does not
+    satisfy the winners' recipe constraints instead of silently
+    producing a malformed file.
+    """
+    assert isinstance(entry, str) and entry, "entry must be a non-empty string"
+    assert 1 <= len(entry) <= 140, f"entry must be 1-140 chars, got {len(entry)}"
+    assert len(entry.split()) <= 20, f"entry must be <= 20 words, got {len(entry.split())}"
+    assert "\n" not in entry and "\r" not in entry, "entry must be a single line"
+    assert entry == entry.strip(), "entry must not have leading/trailing whitespace"
+    assert not entry.endswith("\n"), "entry must not end with a trailing newline"
+
+
 def main() -> None:
+    validate_entry(ENTRY)
     out_dir = "/output"
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
